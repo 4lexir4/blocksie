@@ -30,3 +30,11 @@ func TerstPrivateKeySign(t *testing.T) {
 	assert.False(t, sig.Verify(nonMatchingPubKey, msg))
 
 }
+
+func TestPublicKeyToAddress(t *testing.T) {
+	prvKey := GeneratePrivateKey()
+	pubKey := prvKey.Public()
+	address := pubKey.Address()
+
+	assert.Equal(t, addressLen, len(address.Bytes()))
+}
