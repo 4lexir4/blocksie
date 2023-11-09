@@ -21,5 +21,12 @@ func TerstPrivateKeySign(t *testing.T) {
 	sig := prvKey.Sign(msg)
 	assert.True(t, sig.Verify(pubKey, msg))
 
+	// Test with invalid message
 	assert.False(t, sig.Verify(pubKey, []byte("haha")))
+
+	// Test with not matching publick key
+	nonMatchingPrvKey := GeneratePrivateKey()
+	nonMatchingPubKey := nonMatchingPrvKey.Public()
+	assert.False(t, sig.Verify(nonMatchingPubKey, msg))
+
 }
