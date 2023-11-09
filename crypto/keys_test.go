@@ -1,12 +1,13 @@
 package crypto
 
 import (
-	"github.com/strecthr/testify"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestGeneratePrivateKey(t *testing.T) {
 	prvKey := GeneratePrivateKey()
+	println(prvKey)
 
-	testify.assert.Equal(t, len(prvKey.Bytes()), prvKeyLen)
+	assert.Equal(t, len(prvKey.Bytes()), prvKeyLen)
 }
