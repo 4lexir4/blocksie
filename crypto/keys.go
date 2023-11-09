@@ -31,18 +31,37 @@ func (p *PrivateKey) Bytes() []byte {
 	return p.key
 }
 
-func (p *PrivateKey) Sign(msg []byte) []byte {
-	return ed25519.Sign(p.key, msg)
+func (p *PrivateKey) Sign(msg []byte) *Signature {
+	return &Signature{
+		value: ed25519.Sign(p.key, msg),
+	}
 }
 
-func (p *PrivateKey) Public() *PrivateKey {
+func (p *PrivateKey) Public() *PublicKey {
 	b := make([]byte, pubKeyLen)
 	copy(b, p.key[32:])
-	return &PrivateKey{
+
+	return &PublicKey{
 		key: b,
 	}
 }
 
 type PublicKey struct {
-	key ed25519.PrivateKey
+	key ed25519.PublicKey
+}
+
+func (p *PublicKey) Bytes() []byte {
+	return p.key
+}
+
+type Signature struct {
+	value []byte
+}
+
+func (s *Signature) Bytes() []byte {
+	return s.value
+}
+
+func (s *Signature) Verify(pubKey *PublicKey, msg []byte) bool {
+	return ed25519.Verify(pubKey.key, msg, s.value)
 }
