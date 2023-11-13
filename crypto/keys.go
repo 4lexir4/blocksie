@@ -71,6 +71,12 @@ type PublicKey struct {
 	key ed25519.PublicKey
 }
 
+func PublicKeyFromBytes(b []byte) *PublicKey {
+	return &PublicKey{
+		key: ed25519.PublicKey(b),
+	}
+}
+
 func (p *PublicKey) Address() Address {
 	return Address{
 		value: p.key[len(p.key)-addressLen:],
