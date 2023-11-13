@@ -1,4 +1,4 @@
-package server
+package node
 
 import (
 	"context"
@@ -8,6 +8,10 @@ import (
 
 type Node struct {
 	proto.UnimplementedNodeServer
+}
+
+func NewNode() *Node {
+	return &Node{}
 }
 
 func (n *Node) HandleTransaction(ctx context.Context, tx *proto.Transaction) (*proto.None, error) {
