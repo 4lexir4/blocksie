@@ -72,6 +72,10 @@ type PublicKey struct {
 }
 
 func PublicKeyFromBytes(b []byte) *PublicKey {
+	if len(b) != pubKeyLen {
+		panic("Invalid publick key length.")
+	}
+
 	return &PublicKey{
 		key: ed25519.PublicKey(b),
 	}
