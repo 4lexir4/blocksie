@@ -16,8 +16,8 @@ func NewNode() *Node {
 	return &Node{}
 }
 
-func (n *Node) HandleTransaction(ctx context.Context, tx *proto.Transaction) (*proto.None, error) {
+func (n *Node) HandleTransaction(ctx context.Context, tx *proto.Transaction) (*proto.Ack, error) {
 	peer, _ := peer.FromContext(ctx)
 	fmt.Println("Received tx from:", peer)
-	return &proto.None{}, nil
+	return &proto.Ack{}, nil
 }
