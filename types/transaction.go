@@ -26,6 +26,10 @@ func VerifyTransaction(tx *proto.Transaction) bool {
 	for _, input := range tx.Inputs {
 		sig := crypto.SignatureFromBytes(input.Signature)
 		pubKey := crypto.PublicKeyFromBytes(input.PublicKey)
+
+		// TODO: make sure we do not run into problems after verification
+		// because we have set the signature to nil
+		input.Signature = nil
 		if !sig.Verify(pubKey, HashTransaction(tx)) {
 			return false
 		}

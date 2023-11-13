@@ -7,6 +7,7 @@ import (
 	"github.com/4lexir4/blocksie/crypto"
 	"github.com/4lexir4/blocksie/proto"
 	"github.com/4lexir4/blocksie/util"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewTransaction(t *testing.T) {
@@ -40,6 +41,8 @@ func TestNewTransaction(t *testing.T) {
 
 	sig := SignTransaction(fromPrvKey, tx)
 	input.Signature = sig.Bytes()
+
+	assert.True(t, VerifyTransaction(tx))
 
 	fmt.Printf("%+v\n", tx)
 }
