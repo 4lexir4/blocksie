@@ -3,8 +3,10 @@ syntax="proto3";
 option go_package="github.com/4lexir4/blocksie/proto";
 
 service Node {
-    rpc HandleTransaction(Transaction) returns (None);
+    rpc HandleTransaction(Transaction) returns (Ack);
 }
+
+message Ack {}
 
 message None {}
 
