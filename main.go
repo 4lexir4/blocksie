@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"time"
 
 	"github.com/4lexir4/blocksie/node"
 	"github.com/4lexir4/blocksie/proto"
@@ -23,6 +24,14 @@ func main() {
 	}
 	proto.RegisterNodeServer(grpcServer, node)
 	fmt.Println("Node running on prot:", ":3000")
+
+	go func() {
+		for {
+			time.Sleep(2 * time.Second)
+			makeTransaction()
+		}
+	}()
+
 	grpcServer.Serve(ln)
 }
 
