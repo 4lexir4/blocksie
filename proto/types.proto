@@ -5,7 +5,7 @@ option go_package="github.com/4lexir4/blocksie/proto";
 message Block {
     Header header = 1;
     repeated Transaction transactions = 2;
-  }
+}
 
 message Header {
     int32 version = 1;
@@ -13,7 +13,7 @@ message Header {
     bytes prvHash = 3;
     bytes roorHahs = 4; // merkle root of txs
     int64 timestamp = 5;
-  }
+}
 
 message TxInput {
     // The previous hash of the transaction 
@@ -26,6 +26,11 @@ message TxInput {
 
     bytes publicKey = 3;
     bytes signature = 4;
-  }
+}
+
+message TxOutput {
+    int64 amout = 1;
+    bytes address = 2;
+}
 
 message Transaction {}
