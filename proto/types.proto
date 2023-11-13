@@ -3,7 +3,7 @@ syntax="proto3";
 option go_package="github.com/4lexir4/blocksie/proto";
 
 service Node {
-    rpc Handshake()
+    rpc Handshake(Handshake) returns (Handshake);
     rpc HandleTransaction(Transaction) returns (Ack);
 }
 
