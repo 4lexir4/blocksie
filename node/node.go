@@ -2,8 +2,10 @@ package node
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/4lexir4/blocksie/proto"
+	"google.golang.org/grpc/peer"
 )
 
 type Node struct {
@@ -15,5 +17,7 @@ func NewNode() *Node {
 }
 
 func (n *Node) HandleTransaction(ctx context.Context, tx *proto.Transaction) (*proto.None, error) {
-	return nil, nil
+	peer, _ := peer.FromContext(ctx)
+	fmt.Println("Received tx from:", peer)
+	return &proto.None{}, nil
 }

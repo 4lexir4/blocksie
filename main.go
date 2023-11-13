@@ -36,14 +36,18 @@ func main() {
 }
 
 func makeTransaction() {
-	client, err := grpc.Dial(":3000")
+	client, err := grpc.Dial(":3000", grpc.WithInsecure())
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	c := proto.NewNodeClient(client)
 
-	_, err = c.HandleTransaction(context.TODO(), &proto.Transaction{})
+	tx := &proto.Transaction{
+		Version: 1,
+	}
+
+	_, err = c.HandleTransaction(context.TODO(), tx)
 	if err != nil {
 		log.Fatal(err)
 	}
