@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/4lexir4/blocksie/crypto"
@@ -36,4 +37,9 @@ func TestNewTransaction(t *testing.T) {
 		Inputs:  []*proto.TxInput{input},
 		Outputs: []*proto.TxOutput{output1, output2},
 	}
+
+	sig := SignTransaction(fromPrvKey, tx)
+	input.Signature = sig.Bytes()
+
+	fmt.Printf("%+v\n", tx)
 }
