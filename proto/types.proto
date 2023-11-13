@@ -33,4 +33,8 @@ message TxOutput {
     bytes address = 2;
 }
 
-message Transaction {}
+message Transaction {
+    int32 version = 1;
+    repeated TxInput inputs = 2;
+    repeated TxOutput outputs = 3;
+  }
