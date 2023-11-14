@@ -7,3 +7,6 @@ Install:
 
 
 ``` go get github.com/golang/protobuf/proto```
+
+
+``` go get google.golang.org/grpc```
