@@ -23,6 +23,16 @@ func main() {
 	log.Fatal(node.Start(":3000"))
 }
 
+func makeNode(listenAddr string, boostrapNodes []string) *node.Node {
+	n := node.NewNode()
+	go n.Start(listenAddr)
+	if err := n.BootstrapNetwork(boostrapNodes); err != nil {
+		log.Fatal(err)
+	}
+
+	return n
+}
+
 func makeTransaction() {
 	client, err := grpc.Dial(":3000", grpc.WithInsecure())
 	if err != nil {

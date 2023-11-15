@@ -12,7 +12,8 @@ import (
 )
 
 type Node struct {
-	version string
+	version    string
+	listenAddr string
 
 	peerLock sync.RWMutex
 	peers    map[proto.NodeClient]*proto.Version
@@ -43,7 +44,26 @@ func (n *Node) deletePeer(c proto.NodeClient) {
 	delete(n.peers, c)
 }
 
+func (n *Node) BootstrapNetwork(addrs []string) error {
+	for _, addr := range addrs {
+		c, err := makeNodeClient(addr)
+		if err != nil {
+			return err
+		}
+
+		v, err := c.Handshake(context.Background(), n.getVersion())
+		if err != nil {
+			fmt.Println("Handshake error: ", err)
+			continue
+		}
+
+		n.addPeer(c, v)
+	}
+	return nil
+}
+
 func (n *Node) Start(listenAddr string) error {
+	n.listenAddr = listenAddr
 	opts := []grpc.ServerOption{}
 	grpcServer := grpc.NewServer(opts...)
 
@@ -78,6 +98,14 @@ func (n *Node) HandleTransaction(ctx context.Context, tx *proto.Transaction) (*p
 	peer, _ := peer.FromContext(ctx)
 	fmt.Println("Received tx from:", peer)
 	return &proto.Ack{}, nil
+}
+
+func (n *Node) getVersion() *proto.Version {
+	return &proto.Version{
+		Version:    "blocksie-0.1",
+		Height:     0,
+		ListenAddr: n.listenAddr,
+	}
 }
 
 func makeNodeClient(listenAddr string) (proto.NodeClient, error) {
