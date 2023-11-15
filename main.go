@@ -2,10 +2,8 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"net"
-	"time"
+	//"time"
 
 	"github.com/4lexir4/blocksie/node"
 	"github.com/4lexir4/blocksie/proto"
@@ -13,26 +11,28 @@ import (
 )
 
 func main() {
-	node := node.NewNode()
+	makeNode(":3000", []string{})
+	makeNode(":4000", []string{":3000"})
 
-	opts := []grpc.ServerOption{}
-	grpcServer := grpc.NewServer(opts...)
+	//go func() {
+	//	for {
+	//		time.Sleep(2 * time.Second)
+	//		makeTransaction()
+	//	}
+	//}()
+	select {}
+}
 
-	ln, err := net.Listen("tcp", ":3000")
-	if err != nil {
-		log.Fatal(err)
-	}
-	proto.RegisterNodeServer(grpcServer, node)
-	fmt.Println("Node running on prot:", ":3000")
-
-	go func() {
-		for {
-			time.Sleep(2 * time.Second)
-			makeTransaction()
+func makeNode(listenAddr string, boostrapNodes []string) *node.Node {
+	n := node.NewNode()
+	go n.Start(listenAddr)
+	if len(boostrapNodes) > 0 {
+		if err := n.BootstrapNetwork(boostrapNodes); err != nil {
+			log.Fatal(err)
 		}
-	}()
+	}
 
-	grpcServer.Serve(ln)
+	return n
 }
 
 func makeTransaction() {
@@ -44,8 +44,9 @@ func makeTransaction() {
 	c := proto.NewNodeClient(client)
 
 	version := &proto.Version{
-		Version: "blocksie-0.1",
-		Height:  1,
+		Version:    "blocksie-0.1",
+		Height:     1,
+		ListenAddr: ":4000",
 	}
 
 	_, err = c.Handshake(context.TODO(), version)

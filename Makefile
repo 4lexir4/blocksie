@@ -2,7 +2,7 @@ build:
 	@go build -o bin/blocksie
 
 run: build
-	@./bin/docker
+	@./bin/blocksie
 
 test:
 	@go test -v ./...
