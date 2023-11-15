@@ -10,3 +10,6 @@ Install:
 
 
 ``` go get google.golang.org/grpc```
+
+
+``` go get go.uber.org/zap```

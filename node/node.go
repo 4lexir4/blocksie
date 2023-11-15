@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/4lexir4/blocksie/proto"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/peer"
 )
@@ -14,6 +15,7 @@ import (
 type Node struct {
 	version    string
 	listenAddr string
+	logger     *zap.SugaredLogger
 
 	peerLock sync.RWMutex
 	peers    map[proto.NodeClient]*proto.Version
@@ -22,9 +24,13 @@ type Node struct {
 }
 
 func NewNode() *Node {
+	loggerConfig := zap.NewDevelopmentConfig()
+	loggerConfig.EncoderConfig.TimeKey = ""
+	logger, _ := loggerConfig.Build()
 	return &Node{
 		peers:   make(map[proto.NodeClient]*proto.Version),
 		version: "blocksie-0.1",
+		logger:  logger.Sugar(),
 	}
 }
 
@@ -32,7 +38,7 @@ func (n *Node) addPeer(c proto.NodeClient, v *proto.Version) {
 	n.peerLock.Lock()
 	defer n.peerLock.Unlock()
 
-	fmt.Printf("New peer connected (%s) - height (%d)\n", v.ListenAddr, v.Height)
+	n.logger.Debugw("New peer connected", "addr", v.ListenAddr, "height", v.Height)
 
 	n.peers[c] = v
 }
@@ -53,7 +59,7 @@ func (n *Node) BootstrapNetwork(addrs []string) error {
 
 		v, err := c.Handshake(context.Background(), n.getVersion())
 		if err != nil {
-			fmt.Println("Handshake error: ", err)
+			n.logger.Error("Handshake error: ", err)
 			continue
 		}
 
@@ -73,17 +79,12 @@ func (n *Node) Start(listenAddr string) error {
 	}
 	proto.RegisterNodeServer(grpcServer, n)
 
-	fmt.Println("Node running on prot:", listenAddr)
+	n.logger.Infow("Node started...", "port", n.listenAddr)
 
 	return grpcServer.Serve(ln)
 }
 
 func (n *Node) Handshake(ctx context.Context, v *proto.Version) (*proto.Version, error) {
-	ourVersion := &proto.Version{
-		Version: n.version,
-		Height:  100,
-	}
-
 	c, err := makeNodeClient(v.ListenAddr)
 	if err != nil {
 		return nil, err
@@ -91,7 +92,7 @@ func (n *Node) Handshake(ctx context.Context, v *proto.Version) (*proto.Version,
 
 	n.addPeer(c, v)
 
-	return ourVersion, nil
+	return n.getVersion(), nil
 }
 
 func (n *Node) HandleTransaction(ctx context.Context, tx *proto.Transaction) (*proto.Ack, error) {
