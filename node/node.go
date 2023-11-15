@@ -3,8 +3,10 @@ package node
 import (
 	"context"
 	"fmt"
+	"net"
 
 	"github.com/4lexir4/blocksie/proto"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/peer"
 )
 
@@ -17,6 +19,21 @@ func NewNode() *Node {
 	return &Node{
 		version: "blocksie-0.1",
 	}
+}
+
+func (n *Node) Start(listenAddr string) error {
+	opts := []grpc.ServerOption{}
+	grpcServer := grpc.NewServer(opts...)
+
+	ln, err := net.Listen("tcp", listenAddr)
+	if err != nil {
+		return err
+	}
+	proto.RegisterNodeServer(grpcServer, n)
+
+	fmt.Println("Node running on prot:", listenAddr)
+
+	return grpcServer.Serve(ln)
 }
 
 func (n *Node) Handshake(ctx context.Context, v *proto.Version) (*proto.Version, error) {

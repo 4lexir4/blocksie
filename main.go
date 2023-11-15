@@ -2,9 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"net"
 	"time"
 
 	"github.com/4lexir4/blocksie/node"
@@ -15,16 +13,6 @@ import (
 func main() {
 	node := node.NewNode()
 
-	opts := []grpc.ServerOption{}
-	grpcServer := grpc.NewServer(opts...)
-
-	ln, err := net.Listen("tcp", ":3000")
-	if err != nil {
-		log.Fatal(err)
-	}
-	proto.RegisterNodeServer(grpcServer, node)
-	fmt.Println("Node running on prot:", ":3000")
-
 	go func() {
 		for {
 			time.Sleep(2 * time.Second)
@@ -32,7 +20,7 @@ func main() {
 		}
 	}()
 
-	grpcServer.Serve(ln)
+	log.Fatal(node.Start(":3000"))
 }
 
 func makeTransaction() {
