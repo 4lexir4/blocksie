@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"sync"
 
 	"github.com/4lexir4/blocksie/proto"
 	"google.golang.org/grpc"
@@ -12,6 +13,10 @@ import (
 
 type Node struct {
 	version string
+
+	peerLock sync.RWMutex
+	peers    map[proto.NodeClient]bool
+
 	proto.UnimplementedNodeServer
 }
 
@@ -19,6 +24,20 @@ func NewNode() *Node {
 	return &Node{
 		version: "blocksie-0.1",
 	}
+}
+
+func (n *Node) addPeer(c proto.NodeClient) {
+	n.peerLock.Lock()
+	defer n.peerLock.Unlock()
+
+	n.peers[c] = true
+}
+
+func (n *Node) deletePeer(c proto.NodeClient) {
+	n.peerLock.Lock()
+	defer n.peerLock.Unlock()
+
+	delete(n.peers, c)
 }
 
 func (n *Node) Start(listenAddr string) error {
