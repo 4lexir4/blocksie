@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"log"
-	"time"
+	//"time"
 
 	"github.com/4lexir4/blocksie/node"
 	"github.com/4lexir4/blocksie/proto"
@@ -11,23 +11,25 @@ import (
 )
 
 func main() {
-	node := node.NewNode()
+	makeNode(":3000", []string{})
+	makeNode(":4000", []string{":3000"})
 
-	go func() {
-		for {
-			time.Sleep(2 * time.Second)
-			makeTransaction()
-		}
-	}()
-
-	log.Fatal(node.Start(":3000"))
+	//go func() {
+	//	for {
+	//		time.Sleep(2 * time.Second)
+	//		makeTransaction()
+	//	}
+	//}()
+	select {}
 }
 
 func makeNode(listenAddr string, boostrapNodes []string) *node.Node {
 	n := node.NewNode()
 	go n.Start(listenAddr)
-	if err := n.BootstrapNetwork(boostrapNodes); err != nil {
-		log.Fatal(err)
+	if len(boostrapNodes) > 0 {
+		if err := n.BootstrapNetwork(boostrapNodes); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	return n
