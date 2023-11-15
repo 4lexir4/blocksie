@@ -22,6 +22,7 @@ type Node struct {
 
 func NewNode() *Node {
 	return &Node{
+		peers:   make(map[proto.NodeClient]bool),
 		version: "blocksie-0.1",
 	}
 }
@@ -72,4 +73,12 @@ func (n *Node) HandleTransaction(ctx context.Context, tx *proto.Transaction) (*p
 	peer, _ := peer.FromContext(ctx)
 	fmt.Println("Received tx from:", peer)
 	return &proto.Ack{}, nil
+}
+
+func makeNodeClient(listenAddr string) (proto.NodeClient, error) {
+	c, err := grpc.Dial(listenAddr)
+	if err != nil {
+		return nil, err
+	}
+	return proto.NewNodeClient(c), nil
 }
