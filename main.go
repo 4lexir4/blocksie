@@ -23,13 +23,7 @@ func main() {
 
 func makeNode(listenAddr string, boostrapNodes []string) *node.Node {
 	n := node.NewNode()
-	go n.Start(listenAddr)
-	if len(boostrapNodes) > 0 {
-		if err := n.BootstrapNetwork(boostrapNodes); err != nil {
-			log.Fatal(err)
-		}
-	}
-
+	go n.Start(listenAddr, boostrapNodes)
 	return n
 }
 
