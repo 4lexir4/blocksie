@@ -38,9 +38,15 @@ func (n *Node) addPeer(c proto.NodeClient, v *proto.Version) {
 	n.peerLock.Lock()
 	defer n.peerLock.Unlock()
 
-	n.logger.Debugw("New peer connected", "addr", v.ListenAddr, "height", v.Height)
-
 	n.peers[c] = v
+
+	for _, addr := range v.PeerList {
+		if addr != n.listenAddr {
+			fmt.Printf("[%s] need to connect with %s\n", n.listenAddr, addr)
+		}
+	}
+
+	n.logger.Debugw("New peer connected", "addr", v.ListenAddr, "height", v.Height)
 }
 
 func (n *Node) deletePeer(c proto.NodeClient) {
@@ -106,7 +112,20 @@ func (n *Node) getVersion() *proto.Version {
 		Version:    "blocksie-0.1",
 		Height:     0,
 		ListenAddr: n.listenAddr,
+		PeerList:   n.getPeerList(),
 	}
+}
+
+func (n *Node) getPeerList() []string {
+	n.peerLock.RLock()
+	defer n.peerLock.RUnlock()
+
+	peers := []string{}
+	for _, version := range n.peers {
+		peers = append(peers, version.ListenAddr)
+	}
+
+	return peers
 }
 
 func makeNodeClient(listenAddr string) (proto.NodeClient, error) {

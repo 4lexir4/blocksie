@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"log"
+	"time"
+
 	//"time"
 
 	"github.com/4lexir4/blocksie/node"
@@ -12,14 +14,10 @@ import (
 
 func main() {
 	makeNode(":3000", []string{})
+	time.Sleep(time.Second)
 	makeNode(":4000", []string{":3000"})
-
-	//go func() {
-	//	for {
-	//		time.Sleep(2 * time.Second)
-	//		makeTransaction()
-	//	}
-	//}()
+	time.Sleep(4 * time.Second)
+	makeNode(":5000", []string{":4000"})
 	select {}
 }
 
