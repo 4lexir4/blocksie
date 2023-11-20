@@ -1,9 +1,11 @@
 package node
 
 import (
+	"bytes"
 	"encoding/hex"
 	"fmt"
 
+	"github.com/4lexir4/blocksie/crypto"
 	"github.com/4lexir4/blocksie/proto"
 	"github.com/4lexir4/blocksie/types"
 )
@@ -44,10 +46,13 @@ type Chain struct {
 }
 
 func NewChain(bs BlockStorer) *Chain {
-	return &Chain{
+	chain := &Chain{
 		blockStore: bs,
 		headers:    NewHeaderList(),
 	}
+
+	chain.addBlock(createGenesisBlock())
+	return chain
 }
 
 func (c *Chain) Height() int {
@@ -55,6 +60,13 @@ func (c *Chain) Height() int {
 }
 
 func (c *Chain) AddBlock(b *proto.Block) error {
+	if err := c.ValidateBlock(b); err != nil {
+		return err
+	}
+	return c.addBlock(b)
+}
+
+func (c *Chain) addBlock(b *proto.Block) error {
 	// add the header to the list of headers
 	c.headers.Add(b.Header)
 
@@ -76,4 +88,30 @@ func (c *Chain) GetBlockByHeight(height int) (*proto.Block, error) {
 	hash := types.HashHeader(header)
 	return c.GetBlockByHash(hash)
 
+}
+
+func (c *Chain) ValidateBlock(b *proto.Block) error {
+	currentBlock, err := c.GetBlockByHeight(c.Height())
+	if err != nil {
+		return err
+	}
+
+	hash := types.HashBlock(currentBlock)
+	if !bytes.Equal(hash, b.Header.PrvHash) {
+		return fmt.Errorf("Invalid previous block hash")
+	}
+
+	return nil
+}
+
+func createGenesisBlock() *proto.Block {
+	prvKey := crypto.GeneratePrivateKey()
+	block := &proto.Block{
+		Header: &proto.Header{
+			Version: 1,
+		},
+	}
+	types.SignBlock(prvKey, block)
+
+	return block
 }

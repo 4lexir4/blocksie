@@ -10,7 +10,11 @@ import (
 )
 
 func SignBlock(pk *crypto.PrivateKey, b *proto.Block) *crypto.Signature {
-	return pk.Sign(HashBlock(b))
+	hash := HashBlock(b)
+	sig := pk.Sign(hash)
+	b.PublicKey = pk.Public().Bytes()
+	b.Signature = sig.Bytes()
+	return sig
 }
 
 func HashBlock(block *proto.Block) []byte {

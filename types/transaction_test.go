@@ -24,12 +24,12 @@ func TestNewTransaction(t *testing.T) {
 	}
 
 	output1 := &proto.TxOutput{
-		Amout:   4,
+		Amount:  4,
 		Address: toAddress,
 	}
 
 	output2 := &proto.TxOutput{
-		Amout:   95,
+		Amount:  95,
 		Address: fromAddress,
 	}
 
