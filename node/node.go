@@ -2,11 +2,12 @@ package node
 
 import (
 	"context"
-	"fmt"
+	"encoding/hex"
 	"net"
 	"sync"
 
 	"github.com/4lexir4/blocksie/proto"
+	"github.com/4lexir4/blocksie/types"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/peer"
@@ -68,8 +69,28 @@ func (n *Node) Handshake(ctx context.Context, v *proto.Version) (*proto.Version,
 
 func (n *Node) HandleTransaction(ctx context.Context, tx *proto.Transaction) (*proto.Ack, error) {
 	peer, _ := peer.FromContext(ctx)
-	fmt.Println("Received tx from:", peer)
+	hash := hex.EncodeToString(types.HashTransaction(tx))
+	n.logger.Debugw("Received transaxtion", "from", peer.Addr, "hash", hash)
+
+	go func() {
+		if err := n.broadcast(tx); err != nil {
+			n.logger.Errorw("Broadcast error", "err", err)
+		}
+	}()
 	return &proto.Ack{}, nil
+}
+
+func (n *Node) broadcast(msg any) error {
+	for peer := range n.peers {
+		switch v := msg.(type) {
+		case *proto.Transaction:
+			_, err := peer.HandleTransaction(context.Background(), v)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 func (n *Node) addPeer(c proto.NodeClient, v *proto.Version) {
