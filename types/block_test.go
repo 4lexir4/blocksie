@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSignBlock(t *testing.T) {
+func TestSignVerifyBlock(t *testing.T) {
 	var (
 		block  = util.RandomBlock()
 		prvKey = crypto.GeneratePrivateKey()
@@ -18,6 +18,17 @@ func TestSignBlock(t *testing.T) {
 	sig := SignBlock(prvKey, block)
 	assert.Equal(t, 64, len(sig.Bytes()))
 	assert.True(t, sig.Verify(pubKey, HashBlock(block)))
+
+	assert.Equal(t, block.PublicKey, pubKey.Bytes())
+	assert.Equal(t, block.Signature, sig.Bytes())
+
+	assert.True(t, VerifyBlock(block))
+
+	invalidPrvKey := crypto.GeneratePrivateKey()
+	block.PublicKey = invalidPrvKey.Public().Bytes()
+
+	assert.False(t, VerifyBlock(block))
+
 }
 
 func TestHashBlock(t *testing.T) {

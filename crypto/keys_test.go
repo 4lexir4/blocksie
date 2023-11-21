@@ -13,10 +13,10 @@ import (
 
 func TestGeneratePrivateKey(t *testing.T) {
 	prvKey := GeneratePrivateKey()
-	assert.Equal(t, len(prvKey.Bytes()), prvKeyLen)
+	assert.Equal(t, len(prvKey.Bytes()), PrvKeyLen)
 
 	pubKey := prvKey.Public()
-	assert.Equal(t, len(pubKey.Bytes()), pubKeyLen)
+	assert.Equal(t, len(pubKey.Bytes()), PubKeyLen)
 }
 
 func TestNewPrivateKeyFromString(t *testing.T) {
@@ -31,7 +31,7 @@ func TestNewPrivateKeyFromString(t *testing.T) {
 	//io.ReadFull(rand.Reader, seed)
 	//fmt.Println(hex.EncodeToString(seed))
 
-	assert.Equal(t, prvKeyLen, len(prvKey.Bytes()))
+	assert.Equal(t, PrvKeyLen, len(prvKey.Bytes()))
 
 	// How to get address string:
 	//address := prvKey.Public().Address()
@@ -64,5 +64,5 @@ func TestPublicKeyToAddress(t *testing.T) {
 	pubKey := prvKey.Public()
 	address := pubKey.Address()
 
-	assert.Equal(t, addressLen, len(address.Bytes()))
+	assert.Equal(t, AddressLen, len(address.Bytes()))
 }
