@@ -91,6 +91,12 @@ func (c *Chain) GetBlockByHeight(height int) (*proto.Block, error) {
 }
 
 func (c *Chain) ValidateBlock(b *proto.Block) error {
+	// Validate the signature of the block
+	if !types.VerifyBlock(b) {
+		return fmt.Errorf("Invalid block signature")
+	}
+
+	// Validate if the prvHash is the actual hash of the current clock
 	currentBlock, err := c.GetBlockByHeight(c.Height())
 	if err != nil {
 		return err

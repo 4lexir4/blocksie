@@ -3,10 +3,23 @@ package node
 import (
 	"testing"
 
+	"github.com/4lexir4/blocksie/crypto"
+	"github.com/4lexir4/blocksie/proto"
 	"github.com/4lexir4/blocksie/types"
 	"github.com/4lexir4/blocksie/util"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+func randomBlock(t *testing.T, chain *Chain) *proto.Block {
+	prvKey := crypto.GeneratePrivateKey()
+	b := util.RandomBlock()
+	prvBlock, err := chain.GetBlockByHeight(chain.Height())
+	require.Nil(t, err)
+	b.Header.PrvHash = types.HashBlock(prvBlock)
+	types.SignBlock(prvKey, b)
+	return b
+}
 
 func TestNewChain(t *testing.T) {
 	chain := NewChain(NewMemoryBlockStore())
@@ -19,12 +32,9 @@ func TestNewChain(t *testing.T) {
 func TestChainHeight(t *testing.T) {
 	chain := NewChain(NewMemoryBlockStore())
 	for i := 0; i < 100; i++ {
-		b := util.RandomBlock()
-		prvBlock, err := chain.GetBlockByHeight(chain.Height())
-		assert.Nil(t, err)
-		b.Header.PrvHash = types.HashBlock(prvBlock)
-		assert.Nil(t, chain.AddBlock(b))
-		assert.Equal(t, chain.Height(), i+1)
+		b := randomBlock(t, chain)
+		require.Nil(t, chain.AddBlock(b))
+		require.Equal(t, chain.Height(), i+1)
 	}
 }
 
@@ -32,18 +42,15 @@ func TestAddBlock(t *testing.T) {
 	chain := NewChain(NewMemoryBlockStore())
 
 	for i := 0; i < 100; i++ {
-		block := util.RandomBlock()
-		prvBlock, err := chain.GetBlockByHeight(chain.Height())
-		assert.Nil(t, err)
-		block.Header.PrvHash = types.HashBlock(prvBlock)
+		block := randomBlock(t, chain)
 		blockHash := types.HashBlock(block)
-		assert.Nil(t, chain.AddBlock(block))
+		require.Nil(t, chain.AddBlock(block))
 		fetchedBlock, err := chain.GetBlockByHash(blockHash)
-		assert.Nil(t, err)
-		assert.Equal(t, block, fetchedBlock)
+		require.Nil(t, err)
+		require.Equal(t, block, fetchedBlock)
 
 		fetchedBlockByHeight, err := chain.GetBlockByHeight(i + 1)
-		assert.Nil(t, err)
-		assert.Equal(t, block, fetchedBlockByHeight)
+		require.Nil(t, err)
+		require.Equal(t, block, fetchedBlockByHeight)
 	}
 }
