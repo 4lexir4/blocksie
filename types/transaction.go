@@ -24,6 +24,9 @@ func HashTransaction(tx *proto.Transaction) []byte {
 
 func VerifyTransaction(tx *proto.Transaction) bool {
 	for _, input := range tx.Inputs {
+		if len(input.Signature) == 0 {
+			panic("The transaction has no signature")
+		}
 		sig := crypto.SignatureFromBytes(input.Signature)
 		pubKey := crypto.PublicKeyFromBytes(input.PublicKey)
 
