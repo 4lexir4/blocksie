@@ -10,6 +10,8 @@ import (
 	"github.com/4lexir4/blocksie/types"
 )
 
+const genesisSeed = "ec82fa001561cdf9ee76af621e5ef8f995dd1f077cd22fe56a929e06967aabf9"
+
 type HeaderList struct {
 	headers []*proto.Header
 }
@@ -41,13 +43,15 @@ func (list *HeaderList) Len() int {
 }
 
 type Chain struct {
+	txStore    TXStorer
 	blockStore BlockStorer
 	headers    *HeaderList
 }
 
-func NewChain(bs BlockStorer) *Chain {
+func NewChain(bs BlockStorer, txStore TXStorer) *Chain {
 	chain := &Chain{
 		blockStore: bs,
+		txStore:    txStore,
 		headers:    NewHeaderList(),
 	}
 
@@ -70,6 +74,12 @@ func (c *Chain) addBlock(b *proto.Block) error {
 	// add the header to the list of headers
 	c.headers.Add(b.Header)
 
+	for _, tx := range b.Transactions {
+		fmt.Println("NEW TX: ", hex.EncodeToString(types.HashTransaction(tx)))
+		if err := c.txStore.Put(tx); err != nil {
+			return err
+		}
+	}
 	// validation
 	return c.blockStore.Put(b)
 }
@@ -111,12 +121,25 @@ func (c *Chain) ValidateBlock(b *proto.Block) error {
 }
 
 func createGenesisBlock() *proto.Block {
-	prvKey := crypto.GeneratePrivateKey()
+	prvKey := crypto.NewPrivateKeyFromSeedString(genesisSeed)
 	block := &proto.Block{
 		Header: &proto.Header{
 			Version: 1,
 		},
 	}
+
+	tx := &proto.Transaction{
+		Version: 1,
+		Inputs:  []*proto.TxInput{},
+		Outputs: []*proto.TxOutput{
+			{
+				Amount:  1000,
+				Address: prvKey.Public().Address().Bytes(),
+			},
+		},
+	}
+
+	block.Transactions = append(block.Transactions, tx)
 	types.SignBlock(prvKey, block)
 
 	return block
