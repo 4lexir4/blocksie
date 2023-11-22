@@ -2,6 +2,7 @@ package node
 
 import (
 	"encoding/hex"
+	"fmt"
 	"testing"
 
 	"github.com/4lexir4/blocksie/crypto"
@@ -60,18 +61,29 @@ func TestAddBlockWithTx(t *testing.T) {
 	var (
 		chain     = NewChain(NewMemoryBlockStore(), NewMemoryTXStore())
 		block     = randomBlock(t, chain)
-		prcKey    = crypto.NewPrivateKeyFromSeedString(genesisSeed)
+		prvKey    = crypto.NewPrivateKeyFromSeedString(genesisSeed)
 		recepient = crypto.GeneratePrivateKey().Public().Address().Bytes()
 	)
+
+	ftt, err := chain.txStore.Get("8a814ba5ec1811952953f24421ef1c216e3f990e88994cb581e2f4ffc9a9513e")
+	assert.Nil(t, err)
+	fmt.Println(ftt)
+
 	inputs := []*proto.TxInput{
 		{
-			PublicKey: prcKey.Public().Bytes(),
+			PrvHash:     types.HashTransaction(ftt),
+			PrvOutIndex: 0,
+			PublicKey:   prvKey.Public().Bytes(),
 		},
 	}
 	outputs := []*proto.TxOutput{
 		{
 			Amount:  100,
 			Address: recepient,
+		},
+		{
+			Amount:  900,
+			Address: prvKey.Public().Address().Bytes(),
 		},
 	}
 	tx := &proto.Transaction{

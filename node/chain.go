@@ -75,6 +75,7 @@ func (c *Chain) addBlock(b *proto.Block) error {
 	c.headers.Add(b.Header)
 
 	for _, tx := range b.Transactions {
+		fmt.Println("NEW TX: ", hex.EncodeToString(types.HashTransaction(tx)))
 		if err := c.txStore.Put(tx); err != nil {
 			return err
 		}
