@@ -60,7 +60,7 @@ func TestAddBlockWithTx(t *testing.T) {
 	var (
 		chain     = NewChain(NewMemoryBlockStore(), NewMemoryTXStore())
 		block     = randomBlock(t, chain)
-		prcKey    = crypto.GeneratePrivateKey()
+		prcKey    = crypto.NewPrivateKeyFromSeedString(genesisSeed)
 		recepient = crypto.GeneratePrivateKey().Public().Address().Bytes()
 	)
 	inputs := []*proto.TxInput{

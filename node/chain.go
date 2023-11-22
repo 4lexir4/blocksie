@@ -10,6 +10,8 @@ import (
 	"github.com/4lexir4/blocksie/types"
 )
 
+const genesisSeed = "ec82fa001561cdf9ee76af621e5ef8f995dd1f077cd22fe56a929e06967aabf9"
+
 type HeaderList struct {
 	headers []*proto.Header
 }
@@ -118,12 +120,25 @@ func (c *Chain) ValidateBlock(b *proto.Block) error {
 }
 
 func createGenesisBlock() *proto.Block {
-	prvKey := crypto.GeneratePrivateKey()
+	prvKey := crypto.NewPrivateKeyFromSeedString(genesisSeed)
 	block := &proto.Block{
 		Header: &proto.Header{
 			Version: 1,
 		},
 	}
+
+	tx := &proto.Transaction{
+		Version: 1,
+		Inputs:  []*proto.TxInput{},
+		Outputs: []*proto.TxOutput{
+			{
+				Amount:  1000,
+				Address: prvKey.Public().Address().Bytes(),
+			},
+		},
+	}
+
+	block.Transactions = append(block.Transactions, tx)
 	types.SignBlock(prvKey, block)
 
 	return block
