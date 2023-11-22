@@ -41,13 +41,15 @@ func (list *HeaderList) Len() int {
 }
 
 type Chain struct {
+	txStore    TXStorer
 	blockStore BlockStorer
 	headers    *HeaderList
 }
 
-func NewChain(bs BlockStorer) *Chain {
+func NewChain(bs BlockStorer, txStore TXStorer) *Chain {
 	chain := &Chain{
 		blockStore: bs,
+		txStore:    txStore,
 		headers:    NewHeaderList(),
 	}
 
@@ -70,6 +72,11 @@ func (c *Chain) addBlock(b *proto.Block) error {
 	// add the header to the list of headers
 	c.headers.Add(b.Header)
 
+	for _, tx := range b.Transactions {
+		if err := c.txStore.Put(tx); err != nil {
+			return err
+		}
+	}
 	// validation
 	return c.blockStore.Put(b)
 }

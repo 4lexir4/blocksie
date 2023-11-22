@@ -1,6 +1,7 @@
 package node
 
 import (
+	"encoding/hex"
 	"testing"
 
 	"github.com/4lexir4/blocksie/crypto"
@@ -22,7 +23,7 @@ func randomBlock(t *testing.T, chain *Chain) *proto.Block {
 }
 
 func TestNewChain(t *testing.T) {
-	chain := NewChain(NewMemoryBlockStore())
+	chain := NewChain(NewMemoryBlockStore(), NewMemoryTXStore())
 	assert.Equal(t, 0, chain.Height())
 
 	_, err := chain.GetBlockByHeight(0)
@@ -30,7 +31,7 @@ func TestNewChain(t *testing.T) {
 }
 
 func TestChainHeight(t *testing.T) {
-	chain := NewChain(NewMemoryBlockStore())
+	chain := NewChain(NewMemoryBlockStore(), NewMemoryTXStore())
 	for i := 0; i < 100; i++ {
 		b := randomBlock(t, chain)
 		require.Nil(t, chain.AddBlock(b))
@@ -39,7 +40,7 @@ func TestChainHeight(t *testing.T) {
 }
 
 func TestAddBlock(t *testing.T) {
-	chain := NewChain(NewMemoryBlockStore())
+	chain := NewChain(NewMemoryBlockStore(), NewMemoryTXStore())
 
 	for i := 0; i < 100; i++ {
 		block := randomBlock(t, chain)
@@ -53,4 +54,36 @@ func TestAddBlock(t *testing.T) {
 		require.Nil(t, err)
 		require.Equal(t, block, fetchedBlockByHeight)
 	}
+}
+
+func TestAddBlockWithTx(t *testing.T) {
+	var (
+		chain     = NewChain(NewMemoryBlockStore(), NewMemoryTXStore())
+		block     = randomBlock(t, chain)
+		prcKey    = crypto.GeneratePrivateKey()
+		recepient = crypto.GeneratePrivateKey().Public().Address().Bytes()
+	)
+	inputs := []*proto.TxInput{
+		{
+			PublicKey: prcKey.Public().Bytes(),
+		},
+	}
+	outputs := []*proto.TxOutput{
+		{
+			Amount:  100,
+			Address: recepient,
+		},
+	}
+	tx := &proto.Transaction{
+		Version: 1,
+		Inputs:  inputs,
+		Outputs: outputs,
+	}
+	block.Transactions = append(block.Transactions, tx)
+	require.Nil(t, chain.AddBlock(block))
+	txHash := hex.EncodeToString(types.HashTransaction(tx))
+
+	fetchedTx, err := chain.txStore.Get(txHash)
+	assert.Nil(t, err)
+	assert.Equal(t, tx, fetchedTx)
 }
