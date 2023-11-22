@@ -42,9 +42,17 @@ func (list *HeaderList) Len() int {
 	return len(list.headers)
 }
 
+type UTXO struct {
+	Hash     string
+	OutIndex int
+	Amount   int64
+	Spent    bool
+}
+
 type Chain struct {
 	txStore    TXStorer
 	blockStore BlockStorer
+	utxoStore  UTXOStorer
 	headers    *HeaderList
 }
 
@@ -52,6 +60,7 @@ func NewChain(bs BlockStorer, txStore TXStorer) *Chain {
 	chain := &Chain{
 		blockStore: bs,
 		txStore:    txStore,
+		utxoStore:  NewMemoryUTXOStore(),
 		headers:    NewHeaderList(),
 	}
 
