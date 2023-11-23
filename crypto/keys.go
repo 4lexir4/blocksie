@@ -109,7 +109,7 @@ func (s *Signature) Bytes() []byte {
 
 func SignatureFromBytes(b []byte) *Signature {
 	if len(b) != SignatureLen {
-		panic("lentgh of the bytes is not 64{}")
+		panic("lentgh of the bytes is not 64")
 	}
 	return &Signature{
 		value: b,
@@ -122,6 +122,15 @@ func (s *Signature) Verify(pubKey *PublicKey, msg []byte) bool {
 
 type Address struct {
 	value []byte
+}
+
+func AddressFromBytes(b []byte) Address {
+	if len(b) != AddressLen {
+		panic("lentgh of the (address) bytes is not 20")
+	}
+	return Address{
+		value: b,
+	}
 }
 
 func (a Address) Bytes() []byte {
