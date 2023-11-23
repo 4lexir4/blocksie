@@ -101,4 +101,10 @@ func TestAddBlockWithTx(t *testing.T) {
 	fetchedTx, err := chain.txStore.Get(txHash)
 	assert.Nil(t, err)
 	assert.Equal(t, tx, fetchedTx)
+
+	address := crypto.AddressFromBytes(tx.Outputs[0].Address)
+	key := fmt.Sprintf("%s_%s", address, txHash)
+	utxo, err := chain.utxoStore.Get(key)
+	assert.Nil(t, err)
+	fmt.Println(utxo)
 }

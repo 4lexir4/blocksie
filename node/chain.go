@@ -87,6 +87,22 @@ func (c *Chain) addBlock(b *proto.Block) error {
 		if err := c.txStore.Put(tx); err != nil {
 			return err
 		}
+
+		hash := hex.EncodeToString(types.HashTransaction(tx))
+
+		for it, output := range tx.Outputs {
+			utxo := &UTXO{
+				Hash:     hash,
+				Amount:   output.Amount,
+				OutIndex: it,
+				Spent:    false,
+			}
+			address := crypto.AddressFromBytes(output.Address)
+			key := fmt.Sprintf("%s_%s", address, hash)
+			if err := c.utxoStore.Put(key, utxo); err != nil {
+				return err
+			}
+		}
 	}
 	// validation
 	return c.blockStore.Put(b)
