@@ -15,7 +15,7 @@ func TestCalculateRootHash(t *testing.T) {
 		Version: 1,
 	}
 	block.Transactions = append(block.Transactions, tx)
-	assert.Nil(t, calculateRootHash(block))
+	assert.True(t, VerifyRootHash(block))
 	assert.Equal(t, 32, len(block.Header.RoorHahs))
 }
 
