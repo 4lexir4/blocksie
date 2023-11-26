@@ -56,6 +56,43 @@ func TestAddBlock(t *testing.T) {
 	}
 }
 
+func TestAddBlockWithTxInsufficientFunds(t *testing.T) {
+	var (
+		chain     = NewChain(NewMemoryBlockStore(), NewMemoryTXStore())
+		block     = randomBlock(t, chain)
+		prvKey    = crypto.NewPrivateKeyFromSeedString(genesisSeed)
+		recepient = crypto.GeneratePrivateKey().Public().Address().Bytes()
+	)
+
+	prvTx, err := chain.txStore.Get("8a814ba5ec1811952953f24421ef1c216e3f990e88994cb581e2f4ffc9a9513e")
+	assert.Nil(t, err)
+
+	inputs := []*proto.TxInput{
+		{
+			PrvHash:     types.HashTransaction(prvTx),
+			PrvOutIndex: 0,
+			PublicKey:   prvKey.Public().Bytes(),
+		},
+	}
+	outputs := []*proto.TxOutput{
+		{
+			Amount:  10001,
+			Address: recepient,
+		},
+	}
+	tx := &proto.Transaction{
+		Version: 1,
+		Inputs:  inputs,
+		Outputs: outputs,
+	}
+	sig := types.SignTransaction(prvKey, tx)
+	tx.Inputs[0].Signature = sig.Bytes()
+
+	block.Transactions = append(block.Transactions, tx)
+	require.NotNil(t, chain.AddBlock(block))
+
+}
+
 func TestAddBlockWithTx(t *testing.T) {
 	var (
 		chain     = NewChain(NewMemoryBlockStore(), NewMemoryTXStore())
@@ -64,13 +101,12 @@ func TestAddBlockWithTx(t *testing.T) {
 		recepient = crypto.GeneratePrivateKey().Public().Address().Bytes()
 	)
 
-	ftt, err := chain.txStore.Get("8a814ba5ec1811952953f24421ef1c216e3f990e88994cb581e2f4ffc9a9513e")
+	prvTx, err := chain.txStore.Get("8a814ba5ec1811952953f24421ef1c216e3f990e88994cb581e2f4ffc9a9513e")
 	assert.Nil(t, err)
-	fmt.Println(ftt)
 
 	inputs := []*proto.TxInput{
 		{
-			PrvHash:     types.HashTransaction(ftt),
+			PrvHash:     types.HashTransaction(prvTx),
 			PrvOutIndex: 0,
 			PublicKey:   prvKey.Public().Bytes(),
 		},
