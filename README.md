@@ -13,3 +13,5 @@ Install:
 
 
 ``` go get go.uber.org/zap```
+
+```go get github.com/cbergoon/merkletree```

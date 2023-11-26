@@ -4,9 +4,24 @@ import (
 	"testing"
 
 	"github.com/4lexir4/blocksie/crypto"
+	"github.com/4lexir4/blocksie/proto"
 	"github.com/4lexir4/blocksie/util"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestCalculateRootHash(t *testing.T) {
+	var (
+		prvKey = crypto.GeneratePrivateKey()
+		block  = util.RandomBlock()
+		tx     = &proto.Transaction{
+			Version: 1,
+		}
+	)
+	block.Transactions = append(block.Transactions, tx)
+	SignBlock(prvKey, block)
+	assert.True(t, VerifyRootHash(block))
+	assert.Equal(t, 32, len(block.Header.RootHash))
+}
 
 func TestSignVerifyBlock(t *testing.T) {
 	var (
