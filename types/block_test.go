@@ -10,13 +10,17 @@ import (
 )
 
 func TestCalculateRootHash(t *testing.T) {
-	block := util.RandomBlock()
-	tx := &proto.Transaction{
-		Version: 1,
-	}
+	var (
+		prvKey = crypto.GeneratePrivateKey()
+		block  = util.RandomBlock()
+		tx     = &proto.Transaction{
+			Version: 1,
+		}
+	)
 	block.Transactions = append(block.Transactions, tx)
+	SignBlock(prvKey, block)
 	assert.True(t, VerifyRootHash(block))
-	assert.Equal(t, 32, len(block.Header.RoorHahs))
+	assert.Equal(t, 32, len(block.Header.RootHash))
 }
 
 func TestSignVerifyBlock(t *testing.T) {

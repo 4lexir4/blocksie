@@ -30,8 +30,10 @@ func (h TxHash) Equals(other merkletree.Content) (bool, error) {
 }
 
 func VerifyBlock(b *proto.Block) bool {
-	if !VerifyRootHash(b) {
-		return false
+	if len(b.Transactions) > 0 {
+		if !VerifyRootHash(b) {
+			return false
+		}
 	}
 	if len(b.PublicKey) != crypto.PubKeyLen {
 		return false
@@ -50,6 +52,16 @@ func SignBlock(pk *crypto.PrivateKey, b *proto.Block) *crypto.Signature {
 	sig := pk.Sign(hash)
 	b.PublicKey = pk.Public().Bytes()
 	b.Signature = sig.Bytes()
+
+	if len(b.Transactions) > 0 {
+
+		tree, err := GetMerkleTree(b)
+		if err != nil {
+			panic(err)
+		}
+
+		b.Header.RootHash = tree.MerkleRoot()
+	}
 	return sig
 }
 
@@ -64,11 +76,11 @@ func VerifyRootHash(b *proto.Block) bool {
 		return false
 	}
 
-	if len(b.Header.RoorHahs) == 0 {
-		b.Header.RoorHahs = tree.MerkleRoot()
+	if !valid {
+		return false
 	}
 
-	return valid
+	return bytes.Equal(b.Header.RootHash, tree.MerkleRoot())
 }
 
 func GetMerkleTree(b *proto.Block) (*merkletree.MerkleTree, error) {
