@@ -20,7 +20,7 @@ func RandomBlock() *proto.Block {
 		Version:   1,
 		Height:    int32(rand.Intn(1000)),
 		PrvHash:   RandomHash(),
-		RoorHahs:  RandomHash(),
+		RootHash:  RandomHash(),
 		Timestamp: time.Now().UnixNano(),
 	}
 	return &proto.Block{

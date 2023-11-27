@@ -1,7 +1,6 @@
 package node
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/4lexir4/blocksie/crypto"
