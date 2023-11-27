@@ -32,10 +32,12 @@ func VerifyTransaction(tx *proto.Transaction) bool {
 
 		// TODO: make sure we do not run into problems after verification
 		// because we have set the signature to nil
+		tempSig := input.Signature
 		input.Signature = nil
 		if !sig.Verify(pubKey, HashTransaction(tx)) {
 			return false
 		}
+		input.Signature = tempSig
 	}
 	return true
 }
