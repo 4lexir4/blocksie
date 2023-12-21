@@ -1,4 +1,4 @@
-# blocksie
+# blocksie (in development)
 Mastering core blockchain development
 
 Install:
