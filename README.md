@@ -1,17 +1,15 @@
-# blocksie (in development)
-Mastering core blockchain development
+# Learning bout core blockchain development
 
-Install:
+## Dependencies (for building and playing with):
 
-``` go get github.com/stretchr/testify```
+**Install**:
 
+``` $ go get github.com/stretchr/testify```
 
-``` go get github.com/golang/protobuf/proto```
+``` $ go get github.com/golang/protobuf/proto```
 
+``` $ go get google.golang.org/grpc```
 
-``` go get google.golang.org/grpc```
+``` $ go get go.uber.org/zap```
 
-
-``` go get go.uber.org/zap```
-
-```go get github.com/cbergoon/merkletree```
+``` $ go get github.com/cbergoon/merkletree```
