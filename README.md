@@ -1,4 +1,4 @@
-# Learning bout core blockchain development
+# Learning about core blockchain development
 
 ## Dependencies (for building and playing with):
 
