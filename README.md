@@ -1,6 +1,6 @@
 # Learning about core blockchain development
 
-## Dependencies (for building and playing with):
+## Dependencies:
 
 **Install**:
 
